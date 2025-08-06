@@ -1,0 +1,26 @@
+<group name>:
+  hosts:
+    <host1>:
+      ansible_host: <IP>
+    <host2>:
+      ansible_host: <IP>
+    <host3>:
+      ansible_host: <IP>
+    <host4>:
+      ansible_host: <IP>
+  vars:
+    ansible_ssh_private_key_file: /etc/ssh/ssh_host_ed25519_key
+    ansible_user: <user>
+
+<group2>:
+  hosts:
+    <host1>:
+      ansible_host: <IP>
+  vars:
+    ansible_ssh_private_key_file: /etc/ssh/ssh_host_ed25519_key
+    ansible_user: <user>
+
+myhosts:
+  children:
+    <group name>:
+    <group2>:
