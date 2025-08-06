@@ -1,0 +1,58 @@
+- name: Create a new user (Oracle Linux)
+  hosts: <host>
+  tasks:
+
+	- name: Create user
+  	ansible.builtin.user:
+    	name: <name>
+    	password: "{{ lookup('ansible.builtin.password', '<path>/.vault/newpass.txt', length=20, encrypt='sha512_crypt') }}"
+    	state: present
+    	groups: wheel
+    	append: yes
+
+- name: Create a new user (Ubuntu/Debian)
+  hosts: <hosts>
+  tasks:
+
+	- name: Create user
+  	ansible.builtin.user:
+    	name: <name>
+    	password: "{{ lookup('ansible.builtin.password', '<path>/.vault/newpass.txt', length=20, encrypt='sha512_crypt') }}"
+    	state: present
+    	groups: sudo
+    	append: yes
+
+
+- name: Create .ssh user folder
+  hosts: myhosts
+  tasks:
+
+	- name: Create directory
+  	ansible.builtin.file:
+    	path: <path>/.ssh
+    	state: directory
+
+	- name: Create file
+  	ansible.builtin.file:
+    	path: <path>/.ssh/authorized_keys
+    	state: touch
+    	owner: <owner>
+    	group: <group>
+    	mode: '0400'
+
+	- name: Add key
+  	ansible.builtin.lineinfile:
+    	path: <path>/.ssh/authorized_keys
+    	line: "{{ lookup('ansible.builtin.file', '/etc/ssh/ssh_host_ed25519_key.pub') }}"
+
+- name: Send debug note to user
+  hosts: localhost
+  tasks:
+
+  - name: Output message
+	ansible.builtin.debug:
+  	msg:
+  	- "##########################################"
+  	- "#        	Create a new vault      	#"
+  	- "#	Store newpass.txt as su_password	#"
+  	- "##########################################"

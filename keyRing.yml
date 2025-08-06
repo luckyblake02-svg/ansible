@@ -1,0 +1,102 @@
+- name: Generate a new ssh key
+  hosts: localhost
+  become: true
+  vars_files: <vaultPath>
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+
+	- name: Run SSH Keygen
+  	community.crypto.openssh_keypair:
+    	path: <Path>/ssh/id_ssh_ed25519
+    	type: ed25519
+
+	- name: Append hostname to key
+  	ansible.builtin.lineinfile:
+    	path: <path>/ssh/id_ssh_ed25519.pub
+    	regexp: 'ssh-ed25519'
+    	line: "{{ lookup('ansible.builtin.file', '<path>/ssh/id_ssh_ed25519.pub') }} {{ 'user@machine' }}"
+    	backrefs: true
+
+- name: Inject new key into remote hosts
+  hosts: myhosts
+  tasks:
+
+	- name: Move key into SSH authorized keys file
+  	ansible.builtin.lineinfile:
+    	path: <path>/.ssh/authorized_keys
+    	line: "{{ lookup('ansible.builtin.file', '<path>/ssh/id_ssh_ed25519.pub') }}"
+
+- name: Move keys around to test connectivity
+  hosts: localhost
+  tasks:
+
+	- name: Move old key to safe location
+  	ansible.builtin.copy:
+    	src: /etc/ssh/ssh_host_ed25519_key
+    	dest: <path>/ssh/ssh_host_ed25519_key_old
+    	follow: no
+
+	- name: Move public key
+  	ansible.builtin.copy:
+    	src: /etc/ssh/ssh_host_ed25519_key.pub
+    	dest: <path>/ssh/ssh_host_ed25519_key_old.pub
+    	follow: no
+
+	- name: Move new key to correct location
+  	ansible.builtin.copy:
+    	src: <path>/ssh/id_ssh_ed25519
+    	dest: /etc/ssh/ssh_host_ed25519_key
+    	follow: no
+
+	- name: Delete the original
+  	ansible.builtin.file:
+    	path: <path>/ssh/id_ssh_ed25519
+    	state: absent
+
+	- name: Move public
+  	ansible.builtin.copy:
+    	src: <path>/ssh/id_ssh_ed25519.pub
+    	dest: /etc/ssh/ssh_host_ed25519_key.pub
+    	follow: no
+
+	- name: Delete original
+  	ansible.builtin.file:
+    	path: <path>/ssh/id_ssh_ed25519.pub
+    	state: absent
+
+	- name: Restart SSH service
+  	service:
+    	name: ssh
+    	state: restarted
+
+- name: Test connectivity with new key
+  hosts: myhosts
+  tasks:
+
+	- name: SSH Test
+  	ansible.builtin.ping:
+
+- name: Remove old key from remote hosts
+  hosts: myhosts
+  tasks:
+
+	- name: Purge remote key
+  	ansible.builtin.lineinfile:
+    	path: <path>/.ssh/authorized_keys
+    	line: "{{ lookup('ansible.builtin.file', '<path>/ssh/ssh_host_ed25519_key_old.pub') }}"
+    	state: absent
+
+- name: Remove old key from local host
+  hosts: localhost
+  tasks:
+
+	- name: Delete old key
+  	ansible.builtin.file:
+    	path: <path>/ssh/ssh_host_ed25519_key_old
+    	state: absent
+
+	- name: Delete public
+  	ansible.builtin.file:
+    	path: <path>/ssh/ssh_host_ed25519_key_old.pub
+    	state: absent

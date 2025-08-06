@@ -1,0 +1,45 @@
+- name: Remove root ssh keys
+  hosts: myhosts
+  become: true
+  vars_files: <vaultPath>
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+
+	- name: Remove key entry
+  	ansible.builtin.lineinfile:
+    	line: "{{ lookup('ansible.builtin.file', '/etc/ssh/ssh_host_ed25519_key.pub') }}"
+    	path: ~/.ssh/authorized_keys
+    	state: absent
+
+	- name: Turn off Root SSH access
+  	ansible.builtin.lineinfile:
+    	path: /etc/ssh/sshd_config
+    	search_string: 'PermitRootLogin'
+    	line: "PermitRootLogin no"
+
+- name: Restart SSH (Oracle)
+  hosts: <host>
+  become: true
+  vars_files: <vaultPath>
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+
+	- name: Restart service
+  	ansible.builtin.service:
+    	name: sshd
+    	state: restarted
+
+- name: Restart SSH (Ubuntu/Debian)
+  hosts: <hosts>
+  become: true
+  vars_files: <vaultPath>
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+
+	- name: Restart service
+  	ansible.builtin.service:
+    	name: ssh
+    	state: restarted
