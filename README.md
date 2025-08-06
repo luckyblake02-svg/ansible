@@ -22,6 +22,7 @@ This repository contains Ansible playbooks, YAML inventory files, and shell scri
 
 ## Structure
 
+```
 /ansible_dir
 ├── DockerBooks/         # Playbooks related to Docker administration
 ├── SSHBooks/            # Playbooks related to SSH and user access
@@ -30,6 +31,7 @@ This repository contains Ansible playbooks, YAML inventory files, and shell scri
 ├── newVault.sh          # Script to create new Ansible vaults
 ├── userPass.sh          # Script to manage generated passwords
 └── ansible.log          # Logs of the last Ansible run (overwritten each run)
+```
 
 ## Requirements
 
@@ -39,7 +41,10 @@ This repository contains Ansible playbooks, YAML inventory files, and shell scri
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 (GPLv3). See the LICENSE file for details.
+This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for details.
 
+---
 
 For questions or support, contact Blake Miller at luckyblake02@gmail.com.
+
+```
