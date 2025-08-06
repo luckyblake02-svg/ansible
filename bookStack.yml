@@ -1,0 +1,67 @@
+- name: Update Bookstack and Bookstack DB
+  hosts: <host>
+  become: true
+  vars_files: <vaultPath>
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+	- name: Pull latest container image
+  	community.general.docker_image:
+    	name: lscr.io/linuxserver/bookstack:latest
+    	source: pull
+
+	- name: Stop current running container
+  	community.docker.docker_container:
+    	name: bookstack
+    	state: stopped
+
+	- name: Boot the new container
+  	community.docker.docker_container:
+    	name: bookstack
+    	image: lscr.io/linuxserver/bookstack
+    	ports:
+      	- 6875:80
+      	- 443
+    	state: started
+    	restart_policy: always
+    	volumes:
+      	- /mnt/bookstackdata/bookstack:/config:rw
+
+	- name: Pull latest DB image
+  	community.general.docker_image:
+    	name: lscr.io/linuxserver/mariadb:latest
+    	source: pull
+
+	- name: Stop current running container
+  	community.docker.docker_container:
+    	name: bookstack_db
+    	state: stopped
+
+	- name: Boot the new container
+  	community.docker.docker_container:
+    	name: bookstack_db
+    	image: lscr.io/linuxserver/mariadb
+    	ports:
+      	- 3306:3306
+    	state: started
+    	restart_policy: always
+    	volumes:
+      	- /mnt/bookstackdata/mariadb:/config:rw
+
+	- name: Prune old containers
+  	community.docker.docker_prune:
+    	images: true
+    	images_filters:
+      	until: 1m
+
+#- name: Restart NGINX on <server>
+  #hosts: <host>
+  #become: true
+  #vars_files: <vaultPath>
+  #vars:
+	#ansible_become_pass: "(( su_password }}"
+  #tasks:
+	#- name: Reboot NGINX service
+  	#ansible.builtin.service:
+    	#name: nginx
+    	#state: restarted

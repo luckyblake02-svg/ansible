@@ -1,0 +1,28 @@
+- name: Updating PrivateBin
+  hosts: <host>
+  become: true
+  vars_files: <vaultPath>
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+	- name: Pull latest container image
+  	community.general.docker_image:
+    	name: privatebin/unit-alpine:stable
+    	source: pull
+
+	- name: Stop current running container
+  	community.docker.docker_container:
+    	name: privatebin
+    	state: stopped
+
+	- name: Boot the new container
+  	community.docker.docker_container:
+    	name: privatebin
+    	image: privatebin/unit-alpine
+    	ports:
+      	- 8080:8080
+    	state: started
+    	restart_policy: always
+    	volumes:
+      	- /mnt/dockerdata/privatebin/conf.php:/srv/cfg/conf.php:ro
+      	- /mnt/dockerdata/privatebin-data:/srv/data privatebin/unit-alpine
