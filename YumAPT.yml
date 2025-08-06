@@ -1,0 +1,38 @@
+- name: My first play - <server>
+  hosts: <host>
+  become: true
+  vars_files: <path>/.vault/secrets.yaml
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+	- name: Pulse check
+  	ansible.builtin.ping:
+
+	- name: Run Yum
+  	yum:
+    	name: "*"
+    	state: latest
+
+- name: My second act - <servers>
+  hosts: <host>
+  become: true
+  vars_files: <path>/.vault/secrets.yaml
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+	- name: Pulse check
+  	ansible.builtin.ping:
+
+	- name: Run APT
+  	apt:
+    	name: "*"
+    	state: latest
+
+- name: My third act - localhost
+  hosts: localhost
+  tasks:
+
+	- name: Update localhost while we're at it
+  	apt:
+    	name: "*"
+    	state: latest
