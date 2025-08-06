@@ -1,0 +1,8 @@
+The vault is stored at <path>/vault/secrets.yaml. It is encrypted so you can only view it with the vault password. Trying to cat the file will only show the encryption.
+ 
+Instead, use
+ansible-vault view <vault>.yaml and enter the password.
+Passwords in the vault are store in the format of su_password: "password".
+To create a new vault, dig down into the .new directory and run ./newVault.sh.
+To view the current vault password, use ./vaultPass.sh.
+To view the current sudo user password, use ./userPass.sh.
