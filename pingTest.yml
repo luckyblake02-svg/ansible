@@ -1,0 +1,36 @@
+- name: Default ping test
+  hosts: testhost
+  become: true
+  vars_files: <path>/.vault/secrets.yaml
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+
+	- name: Connectivity check
+  	ansible.builtin.ping:
+
+- name: Test become (Oracle Linux)
+  hosts: testhost
+  become: true
+  vars_files: <path>/.vault/secrets.yaml
+  vars:
+	ansible_become_pass: "{{ su_password }}"
+  tasks:
+
+	- name: Test crond
+  	ansible.builtin.service:
+    	name: crond
+    	state: restarted
+
+#- name: Test become (Ubuntu/Debian)
+  #hosts: <hosts>
+  #become: true
+  #vars_files: <path>/.vault/secrets.yaml
+  #vars:
+	#ansible_become_pass: "{{ su_password }}"
+  #tasks:
+
+	#- name: Test SSH
+  	#ansible.builtin.service:
+    	#name: ssh
+    	#state: restarted
